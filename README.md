@@ -1,4 +1,3 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/VsbltiDW)
 # 作业报告
 
 ## 作业1：编译Linux内核
@@ -30,3 +29,8 @@ default:
 - `$(MAKE)`调用`make`指令编译
 - `-C $(KDIR)`指定编译的内核目录
 - `M==$$PWD`指定编译的模组目录为`$PWD`,即当前文件夹
+
+**IMG:**
+![屏幕截图 2024-07-12 151447](https://github.com/user-attachments/assets/e0b3dec8-dbd5-4ad4-b510-efd1988bdf88)
+![屏幕截图 2024-07-12 155510](https://github.com/user-attachments/assets/0c97467f-894e-48d2-8a0f-bbdf1715c10c)
+
