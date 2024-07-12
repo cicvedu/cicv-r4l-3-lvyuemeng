@@ -1,0 +1,5 @@
+#!/bin/sh
+mount -t proc none /proc
+mount -t sysfs none /sys
+/sbin/mdev -s
+mknod /dev/cicv c 248 0

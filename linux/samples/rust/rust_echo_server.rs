@@ -2,6 +2,8 @@
 
 //! Rust echo server sample.
 
+mod rust_helloworld;
+
 use kernel::{
     kasync::executor::{workqueue::Executor as WqExecutor, AutoStopHandle, Executor},
     kasync::net::{TcpListener, TcpStream},
