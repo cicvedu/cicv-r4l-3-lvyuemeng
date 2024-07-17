@@ -1,3 +1,9 @@
 busybox-1.36.1/_install
 linux/build
 .vscode/
+
+# Ignore build artifacts
+/build/
+*.o
+*.dat
+*.bin
