@@ -1,10 +1,10 @@
-![屏幕截图 2024-07-17 175308](https://github.com/user-attachments/assets/83f74cb1-8351-490d-a185-6018bdf16e63)# 作业报告
+# 作业报告
 
 ## 作业1：编译Linux内核
 
 作业说明：
 
-编译获得vmlinux。
+编译获得vmlinux(提醒：编写或设置后必须重新编译)。
 
 **IMG:**
 
