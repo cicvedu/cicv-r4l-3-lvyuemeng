@@ -117,6 +117,62 @@ config SAMPLE_RUST_HELLOWORLD
 
 ![屏幕截图 2024-07-17 175308](https://github.com/user-attachments/assets/f4902afe-1d2d-4bab-ba7d-af08889e26df)
 
+## 作业5：注册字符设备
+
+作业说明：
+
+为`samples/rust/rust_chrdev.rs`补充`read`,`write`函数，使其`dev/cicv`可以完成基本的读写操作。
+
+**Answer:**
+
+更改配置：
+
+```
+Kernel hacking
+  ---> Sample Kernel code
+      ---> Rust samples
+              ---> <*>Character device (NEW)
+```
+
+`rust_chrdev.rs`
+
+```
+    fn write(
+        _this: &Self,
+        _file: &file::File,
+        _reader: &mut impl kernel::io_buffer::IoBufferReader,
+        _offset: u64,
+    ) -> Result<usize> {
+        let buf = &mut _this.inner.lock();
+        let mut len = _reader.len();
+        if len > GLOBALMEM_SIZE {
+            len = GLOBALMEM_SIZE;
+        }
+        _reader.read_slice(&mut buf[..len])?;
+        Ok(len)
+    }
+
+    fn read(
+        _this: &Self,
+        _file: &file::File,
+        _writer: &mut impl kernel::io_buffer::IoBufferWriter,
+        _offset: u64,
+    ) -> Result<usize> {
+        let data = &mut *_this.inner.lock();
+        if _offset as usize >= GLOBALMEM_SIZE {
+            return Ok(0);
+        }
+        _writer.write_slice(&data[_offset as usize..])?;
+        Ok(data.len())
+```
+
+**IMG:**
+
+![屏幕截图 2024-07-17 112625](https://github.com/user-attachments/assets/ff004826-90ff-4264-977a-a1c78703f3b5)
+
+
+
+
 
 
 
