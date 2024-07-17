@@ -104,7 +104,7 @@ config SAMPLE_RUST_HELLOWORLD
             bars,
             pci_dev_ptr: dev.as_ptr(),
             e1000_hw_ops: Arc::try_new(e1000_hw_ops)?,
-        })?)
+	})?)
 
 `pci.rs`
 
@@ -113,6 +113,18 @@ config SAMPLE_RUST_HELLOWORLD
             self.ptr
     	}
 
+`e1000_main.c`
+
+	// reference of 'e1000_remove' function
+	pci_release_selected_regions(pdev, adapter->bars);
+
+	disable_dev = !test_and_set_bit(__E1000_DISABLED, &adapter->flags);
+	free_netdev(netdev);
+
+	if (disable_dev)
+		pci_disable_device(pdev);
+
+  
 **IMG:**
 
 ![屏幕截图 2024-07-17 175308](https://github.com/user-attachments/assets/f4902afe-1d2d-4bab-ba7d-af08889e26df)
