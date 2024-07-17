@@ -81,23 +81,7 @@ config SAMPLE_RUST_HELLOWORLD
 
 作业说明：
 
-为e1000网卡添加remove功能，使其可以移除该模块。同时我们要求可以重新安装，恢复功能。
-
-**Q:** 
-
-作业5中的字符设备/dev/cicv是怎么创建的？它的设备号是多少？它是如何与我们写的字符设备驱动关联上的？
-
-`rootfs/etc/init.d`
-
-```sh
-#!/bin/sh
-mount -t proc none /proc
-mount -t sysfs none /sys
-/sbin/mdev -s
-mknod /dev/cicv c 248 0
-```
-
-可知其在init.d中被初始化，主设备号:248,次设备号:0。在我们完善并注册字符设备后，通过设备号的对应形成关联。
+为e1000网卡添加remove功能，使其可以移除该模块。同时我们要求可以重新安装，恢复功能。	
 
 **Answer:**
 
@@ -158,6 +142,21 @@ mknod /dev/cicv c 248 0
 
 为`samples/rust/rust_chrdev.rs`补充`read`,`write`函数，使其`dev/cicv`可以完成基本的读写操作。
 
+**Q:** 
+
+作业5中的字符设备/dev/cicv是怎么创建的？它的设备号是多少？它是如何与我们写的字符设备驱动关联上的？
+
+`rootfs/etc/init.d`
+
+```sh
+#!/bin/sh
+mount -t proc none /proc
+mount -t sysfs none /sys
+/sbin/mdev -s
+mknod /dev/cicv c 248 0
+```
+
+可知其在init.d中被初始化，主设备号:248,次设备号:0。在我们完善并注册字符设备后，通过设备号的对应形成关联。
 
 **Answer:**
 
