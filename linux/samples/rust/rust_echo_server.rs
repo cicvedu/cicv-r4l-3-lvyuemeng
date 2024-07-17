@@ -3,6 +3,7 @@
 //! Rust echo server sample.
 
 mod rust_helloworld;
+mod r4l_e1000_demo;
 
 use kernel::{
     kasync::executor::{workqueue::Executor as WqExecutor, AutoStopHandle, Executor},

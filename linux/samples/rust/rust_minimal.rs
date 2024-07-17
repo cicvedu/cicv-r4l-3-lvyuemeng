@@ -2,7 +2,7 @@
 
 //! Rust minimal sample.
 
-use kernel::prelude::*;
+use kernel::{pci::Driver, prelude::*};
 
 module! {
     type: RustMinimal,

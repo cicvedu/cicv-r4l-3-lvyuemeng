@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 //! Rust minimal sample.
 
-use kernel::prelude::*;
+use kernel::{driver, prelude::*};
 
 module! {
   type: RustHelloWorld,
@@ -19,3 +19,10 @@ impl kernel::Module for RustHelloWorld {
         Ok(RustHelloWorld {})
     }
 }
+
+impl driver::DeviceRemoval for RustHelloWorld {
+    fn device_remove(&self) {
+        drop(self);
+    }
+}
+
