@@ -14,17 +14,21 @@
 
 作业说明：
 
+将提供的`src_e1000`的模块进行out of tree编译，并使其正常运行。
+
+**Q:**
+
 1. 编译成内核模块，是在哪个文件中以哪条语句定义的?
 
 **Answer:** 位于`Kbuild`文件中。
-```
+```C
 obj-m := r4l_e1000_demo.o
 ```
 
 2. 该模块位于独立的文件夹内，却能编译成Linux内核模块，这叫做out-of-tree module，请分析它是如何与内核代码产生联系的?
 
 **Answer:** 位于`Makefile`文件中。
-```
+```Makefile
 KDIR ?= ../linux
 
 default:
@@ -51,12 +55,13 @@ default:
 **Answer:**
 
 `Makefile`:
-```
+
+```Makefile
 obj-$(CONFIG_SAMPLE_RUST_HELLOWORLD)	+= rust_helloworld.o
 ```
 
 `Kconfig`:
-```
+```C
 config SAMPLE_RUST_HELLOWORLD
 	tristate "Print Helloworld in Rust"
 	help
@@ -78,10 +83,26 @@ config SAMPLE_RUST_HELLOWORLD
 
 为e1000网卡添加remove功能，使其可以移除该模块。同时我们要求可以重新安装，恢复功能。
 
+**Q:** 
+
+作业5中的字符设备/dev/cicv是怎么创建的？它的设备号是多少？它是如何与我们写的字符设备驱动关联上的？
+
+`rootfs/etc/init.d`
+
+```sh
+#!/bin/sh
+mount -t proc none /proc
+mount -t sysfs none /sys
+/sbin/mdev -s
+mknod /dev/cicv c 248 0
+```
+
+可知其在init.d中被初始化，主设备号:248,次设备号:0。在我们完善并注册字符设备后，通过设备号的对应形成关联。
+
 **Answer:**
 
 `r4l_e1000_demo.rs`
-
+```rust
     fn remove(data: &Self::Data) {
         pr_info!("Rust for linux e1000 driver demo (remove)\n");
 
@@ -105,16 +126,18 @@ config SAMPLE_RUST_HELLOWORLD
             pci_dev_ptr: dev.as_ptr(),
             e1000_hw_ops: Arc::try_new(e1000_hw_ops)?,
 	})?)
+```
 
 `pci.rs`
-
+```rust
 	// In impl Device
 	pub fn as_ptr(&self) -> *mut bindings::pci_dev {
             self.ptr
     	}
+```
 
 `e1000_main.c`
-
+```C
 	// reference of 'e1000_remove' function
 	pci_release_selected_regions(pdev, adapter->bars);
 
@@ -123,7 +146,7 @@ config SAMPLE_RUST_HELLOWORLD
 
 	if (disable_dev)
 		pci_disable_device(pdev);
-
+```
   
 **IMG:**
 
@@ -134,6 +157,7 @@ config SAMPLE_RUST_HELLOWORLD
 作业说明：
 
 为`samples/rust/rust_chrdev.rs`补充`read`,`write`函数，使其`dev/cicv`可以完成基本的读写操作。
+
 
 **Answer:**
 
@@ -148,7 +172,7 @@ Kernel hacking
 
 `rust_chrdev.rs`
 
-```
+```rust
     fn write(
         _this: &Self,
         _file: &file::File,
