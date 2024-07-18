@@ -293,10 +293,10 @@ endif
 
 **Console-1**
 
-![屏幕截图 2024-07-18 193656](https://github.com/user-attachments/assets/9bd11f44-5c32-4527-b814-5ff2e078fd91)
+![屏幕截图 2024-07-18 222456](https://github.com/user-attachments/assets/4fc22662-1ebe-4284-afd1-72ff709149a7)
 
 **Console-2**
 
-![屏幕截图 2024-07-18 193706](https://github.com/user-attachments/assets/226c5ec9-4379-457d-8f58-ab8362d4d1df)
+![屏幕截图 2024-07-18 222459](https://github.com/user-attachments/assets/37e211b2-88e7-40f9-b3ac-00e3b6abcba4)
 
 
