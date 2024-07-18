@@ -155,8 +155,9 @@ mount -t sysfs none /sys
 /sbin/mdev -s
 mknod /dev/cicv c 248 0
 ```
-
-可知其在init.d中被初始化，主设备号:248,次设备号:0。在我们完善并注册字符设备后，通过设备号的对应形成关联。
+- 在`build_image.sh`中存在指令：`echo "mknod /dev/cicv c 248 0" >> etc/init.d/rcS`,即提前通过`mknod`设置了其版本号。
+- 可知其在init.d中被初始化，主设备号:248,次设备号:0。
+- 在我们完善并注册字符设备后，通过设备号的对应形成关联。
 
 **Answer:**
 
@@ -205,10 +206,89 @@ Kernel hacking
 
 ![屏幕截图 2024-07-17 112625](https://github.com/user-attachments/assets/ff004826-90ff-4264-977a-a1c78703f3b5)
 
+## 项目小试验 
 
+作业说明：
 
+通过环境配置虚拟机,nfs和telnet server，并在driver里完成002的rust版本，使其正常运行。
 
+**Answer:**
 
+创建`completion_rust.rs`(参考原`rust_chrdev.rs`完成)，参考原`Makefile`。
 
+`completion_rust.rs`
+
+```rust		
+    fn write(
+        _this: &Self,
+        _file: &file::File,
+        _reader: &mut impl kernel::io_buffer::IoBufferReader,
+        _offset: u64,
+    ) -> Result<usize> {
+        pr_info!("Rust Completion Example (write)\n");
+
+        let task = Task::current();
+
+        pr_info!("process {} awakening the readers...\n", task.pid());
+
+        let offset = _offset.try_into()?;
+        let mut vec = _this.inner.lock();
+        let len = core::cmp::min(_reader.len(), vec.len().saturating_sub(offset));
+        _reader.read_slice(&mut vec[offset..][..len])?;
+
+        Ok(len)
+    }
+
+    fn read(
+        _this: &Self,
+        _file: &file::File,
+        _writer: &mut impl kernel::io_buffer::IoBufferWriter,
+        _offset: u64,
+    ) -> Result<usize> {
+        pr_info!("Rust Completion Example (read)\n");
+
+        let task = Task::current();
+
+        pr_info!("process {} is going to sleep ...\n", task.pid());
+
+        let offset = _offset.try_into()?;
+        let vec = _this.inner.lock();
+        let len = core::cmp::min(_writer.len(), vec.len().saturating_sub(offset));
+        _writer.write_slice(&vec[offset..][..len])?;
+
+        pr_info!("awoken process {}", task.pid());
+        Ok(len)
+    }
+```
+
+`Makefile`
+
+```makefile
+ifneq ($(KERNELRELEASE),)
+
+# In kbuild context
+module-objs := completion_rust.o	
+obj-m := completion_rust.o
+
+else
+KDIR := ../../../linux
+PWD := $(shell pwd)
+
+all:
+	$(MAKE) LLVM=1 -C $(KDIR)  M=$(PWD) modules
+
+.PHONY: clean
+clean:
+	rm -f *.ko *.o .*.cmd .*.o.d *.mod *.mod.o *.mod.c *.symvers *.markers *.unsigned *.order *~
+endif
+```
+
+**Console-1**
+
+![屏幕截图 2024-07-18 193656](https://github.com/user-attachments/assets/9bd11f44-5c32-4527-b814-5ff2e078fd91)
+
+**Console-2**
+
+![屏幕截图 2024-07-18 193706](https://github.com/user-attachments/assets/226c5ec9-4379-457d-8f58-ab8362d4d1df)
 
 
