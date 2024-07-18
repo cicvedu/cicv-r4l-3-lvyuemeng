@@ -179,12 +179,14 @@ Kernel hacking
         _reader: &mut impl kernel::io_buffer::IoBufferReader,
         _offset: u64,
     ) -> Result<usize> {
-        let buf = &mut _this.inner.lock();
-        let mut len = _reader.len();
-        if len > GLOBALMEM_SIZE {
-            len = GLOBALMEM_SIZE;
+        let mut buf = _this.inner.lock().deref();
+
+        let len = min(buf.len() - _offset as usize, _reader.len());
+        if len <= 0 {
+            return Ok(0);
         }
-        _reader.read_slice(&mut buf[..len])?;
+
+        _reader.read_slice(&mut buf[_offset as usize..][..len])?;
         Ok(len)
     }
 
@@ -194,12 +196,16 @@ Kernel hacking
         _writer: &mut impl kernel::io_buffer::IoBufferWriter,
         _offset: u64,
     ) -> Result<usize> {
-        let data = &mut *_this.inner.lock();
-        if _offset as usize >= GLOBALMEM_SIZE {
+        let mut data = *_this.inner.lock().deref();
+
+        let len = min(data.len() - _offset as usize, _writer.len());
+        if len <= 0 {
             return Ok(0);
         }
-        _writer.write_slice(&data[_offset as usize..])?;
-        Ok(data.len())
+
+        _writer.write_slice(&mut data[_offset as usize..][..len])?;
+        Ok(len)
+    }
 ```
 
 **IMG:**
@@ -232,9 +238,10 @@ Kernel hacking
         pr_info!("process {} awakening the readers...\n", task.pid());
 
         let offset = _offset.try_into()?;
-        let mut vec = _this.inner.lock();
-        let len = core::cmp::min(_reader.len(), vec.len().saturating_sub(offset));
-        _reader.read_slice(&mut vec[offset..][..len])?;
+        let mut buf = _this.inner.lock().deref();
+        let len = core::cmp::min(_reader.len(), buf.len().saturating_sub(offset));
+        
+        _reader.read_slice(&mut buf[offset..][..len])?;
 
         Ok(len)
     }
@@ -252,9 +259,10 @@ Kernel hacking
         pr_info!("process {} is going to sleep ...\n", task.pid());
 
         let offset = _offset.try_into()?;
-        let vec = _this.inner.lock();
-        let len = core::cmp::min(_writer.len(), vec.len().saturating_sub(offset));
-        _writer.write_slice(&vec[offset..][..len])?;
+        let data = _this.inner.lock().deref();
+        let len = core::cmp::min(_writer.len(), data.len().saturating_sub(offset));
+
+        _writer.write_slice(&data[offset..][..len])?;
 
         pr_info!("awoken process {}", task.pid());
         Ok(len)
