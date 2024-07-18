@@ -2,7 +2,9 @@
 
 //! Rust character device sample.
 
+use core::ops::Deref;
 use core::result::Result::Err;
+use std::cmp::min;
 
 use kernel::prelude::*;
 use kernel::sync::Mutex;
@@ -41,12 +43,14 @@ impl file::Operations for RustFile {
         _reader: &mut impl kernel::io_buffer::IoBufferReader,
         _offset: u64,
     ) -> Result<usize> {
-        let buf = &mut _this.inner.lock();
-        let mut len = _reader.len();
-        if len > GLOBALMEM_SIZE {
-            len = GLOBALMEM_SIZE;
+        let mut buf = _this.inner.lock().deref();
+
+        let len = min(buf.len() - _offset as usize, _reader.len());
+        if len <= 0 {
+            return Ok(0);
         }
-        _reader.read_slice(&mut buf[..len])?;
+
+        _reader.read_slice(&mut buf[_offset as usize..][..len])?;
         Ok(len)
     }
 
@@ -56,12 +60,15 @@ impl file::Operations for RustFile {
         _writer: &mut impl kernel::io_buffer::IoBufferWriter,
         _offset: u64,
     ) -> Result<usize> {
-        let data = &mut *_this.inner.lock();
-        if _offset as usize >= GLOBALMEM_SIZE {
+        let mut data = *_this.inner.lock().deref();
+
+        let len = min(data.len() - _offset as usize, _writer.len());
+        if len <= 0 {
             return Ok(0);
         }
-        _writer.write_slice(&data[_offset as usize..])?;
-        Ok(data.len())
+
+        _writer.write_slice(&mut data[_offset as usize..][..len])?;
+        Ok(len)
     }
 }
 
