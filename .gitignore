@@ -7,3 +7,7 @@ linux/build
 *.o
 *.dat
 *.bin
+*.o.cmd
+*.ko.cmd
+*.ko
+*.cmd

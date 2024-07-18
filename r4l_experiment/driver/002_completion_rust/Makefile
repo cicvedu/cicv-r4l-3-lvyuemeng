@@ -1,10 +1,9 @@
 ifneq ($(KERNELRELEASE),)
 
 # In kbuild context
-module-objs := rust_completion.o	
-obj-m := rust_completion.o
+module-objs := completion_rust.o	
+obj-m := completion_rust.o
 
-CFLAGS_hello_world.o := -DDEBUG
 else
 KDIR := ../../../linux
 PWD := $(shell pwd)
